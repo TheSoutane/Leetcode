@@ -1,0 +1,44 @@
+# LeetCode pb 124: Binary Tree Maximum Path Sum
+# link to the problem: https://leetcode.com/problems/binary-tree-maximum-path-sum/
+# Link to the neetcode solution: https://www.youtube.com/watch?v=Hr5cWUld4vU
+# Interest of the problem: Here, you must consider a complete path. Easier tree probles are "vertical", meaning you only need to go down using a DFS/BFS algorithm and calculate the value at tree level. 
+# Here, you must integrate the idea of a path. This mean tha you can go "up" and "down" the tree. 
+# The integration of the path is finally quite simple. There is 2 path options per node:
+# 1/ linking a parent and a child node. In that case, one of the child nodes is not considered
+# 2/ Linking 2 child nodes. In that case the parent node is deleted
+# The 2 options will be considered for each node with the following algorithm:
+# if the node exists:  
+#     - child-child option:
+#         fetch the maximum subpath and add node value for both child node
+#         save it to a global var
+#     - parent-child option
+#         fetch the maximum subpath and add node value for each child node
+#         kepp the bigger one and return it
+# if the node doesn't exist:
+#     return 0
+
+# Remarks:
+# - Node values can be negative. therefore, max(val, 0) are applied when necessary
+# - The memo is used to avoir repeating the same calculations
+
+class Solution:
+    def maxPathSum(self, root: Optional[TreeNode]) -> int:
+
+        max_path = [root.val] #Use of a list to make the var global
+        memo = {} # save values to avoid repetitions
+
+        def helper(node): # dfs algorithm 
+            if node in memo: # Don't recompute if you already did it ;)
+                return memo[node] 
+            elif node:
+                sub_max =  node.val + max(0, helper(node.left), helper(node.right)) # parent-child option
+                stop_max = node.val + max(0,helper(node.left)) + max(0,helper(node.right)) # child-child option
+                memo[node] = sub_max # save value to memo
+                # print(node.val, stop_max) # In case of debugging
+                max_path.append(stop_max) # add child-child option to global var (a list)
+                return sub_max
+            else: # return 0 if node doesn't exist
+                return 0
+
+        helper(root) # Run algo to compute global list 
+        return max(max_path) # return max value overall
